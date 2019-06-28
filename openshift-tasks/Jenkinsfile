@@ -63,14 +63,15 @@ podTemplate(
            }
         )
       }
-// ########################################################################################
+
       // Publish the built war file to Nexus
       stage('Publish to Nexus') {
         echo "Publish to Nexus"
 
-        // TBD: Publish to Nexus
+        sh "${mvnCmd} deploy -DskipTests=true \
+          -DaltDeploymentRepository=nexus::default::https://nexus-registry.gpte-hw-cicd.svc.cluster.local:5000/"
       }
-
+// ########################################################################################
       // Build the OpenShift Image in OpenShift and tag it.
       stage('Build and Tag OpenShift Image') {
         echo "Building OpenShift container image tasks:${devTag}"
