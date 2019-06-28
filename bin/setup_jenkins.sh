@@ -1,4 +1,4 @@
-#!/bin/bash
+##!/bin/bash
 # Setup Jenkins Project
 # if [ "$#" -ne 3 ]; then
 #    echo "Usage:"
@@ -11,19 +11,28 @@
 # REPO=$2
 # CLUSTER=$3
 
-export GUID=2c88							# noch an Homework GUID anpassen!
+export GUID=2c88							                          # noch an Homework GUID anpassen!
 export REPO=https://github.com/DevOpsDirk/homework			# noch an repo anpassen!
-export CLUSTER=na311.openshift.opentlc.com				# noch an Homework Cluster anpassen!
+export CLUSTER=na311.openshift.opentlc.com				      # noch an Homework Cluster anpassen!
 
 
 echo "Setting up Jenkins in project ${GUID}-jenkins from Git Repo ${REPO} for Cluster ${CLUSTER}"
 # Set up Jenkins with sufficient resources
-oc new-app --template jenkins-persistent \
+# oc new-app --template jenkins-persistent \
+#   -n $GUID-jenkins \
+#   -p ENABLE_OAUTH=false \
+#   -p MEMORY_LIMIT=2Gi \
+#   -p VOLUME_CAPACITY=4Gi \
+#   -p DISABLE_ADMINISTRATIVE_MONITORS=true \
+
+# ohne persistent storage due to missing shared storage on cluster
+oc new-app --template jenkins-ephemeral \
    -n $GUID-jenkins \
-   -p ENABLE_OAUTH=false \
+   -p ENABLE_OAUTH=true \
    -p MEMORY_LIMIT=2Gi \
-   -p VOLUME_CAPACITY=4Gi \
    -p DISABLE_ADMINISTRATIVE_MONITORS=true \
+
+
 
 # Create custom agent container image with skopeo
 oc -n $GUID-jenkins new-build \
@@ -34,14 +43,13 @@ oc -n $GUID-jenkins new-build \
 			-n ${GUID}-jenkins
 
 # Create pipeline build config pointing to the ${REPO} with contextDir `openshift-tasks`
-oc new-build ${REPO} \
+oc -n $GUID-jenkins new-build ${REPO} \
    --strategy pipeline \
-
    --env GUID=${GUID} \
    --env CLUSTER=${CLUSTER} \
    --env NEXUS_RELEASE_URL='http://nexus3.gpte-hw-cicd.svc:8081/repository/releases' \
    --env REPO=${REPO} \
-   --context-dir openshift-tasks \
+   --context-dir openshift-tasks
 
 # Make sure that Jenkins is fully up and running before proceeding!
 while : ; do
