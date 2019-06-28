@@ -71,14 +71,23 @@ podTemplate(
         sh "${mvnCmd} deploy -DskipTests=true \
           -DaltDeploymentRepository=nexus::default::http://nexus3.gpte-hw-cicd.svc.cluster.local:8081/repository/releases"
       }
-// ########################################################################################
+
       // Build the OpenShift Image in OpenShift and tag it.
       stage('Build and Tag OpenShift Image') {
         echo "Building OpenShift container image tasks:${devTag}"
+        //Start binary build in OpenShift using the file we just published.
+        script {
+         openshift.withCluster() {
+          openshift.withProject("${devProject}") {
+           openshift.selector("bc", "tasks").startBuild("--from-file=./target/openshift-tasks.war", "--wait=true")
 
-        // TBD: Build Image, tag Image
+        // Tag the image using the devTag.
+         openshift.tag("tasks:latest", "tasks:${devTag}")
+            }
+          } 
+        }
       }
-
+// ########################################################################################
       // Deploy the built image to the Development Environment.
       stage('Deploy to Dev') {
         echo "Deploying container image to Development Project"
