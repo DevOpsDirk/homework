@@ -59,7 +59,7 @@ podTemplate(
           },
           "Run code coverage tests": {
               echo "Running Code Analysis"
-              sh "${mvnCmd} sonar:sonar -Dsonar.host.url=sonarqube.gpte-hw-cicd.svc.cluster.local:9000 -Dsonar.projectName=${JOB_BASE_NAME} -Dsonar.projectVersion=${devTag}"
+              sh "${mvnCmd} sonar:sonar -Dsonar.host.url=http://sonarqube.gpte-hw-cicd.svc.cluster.local:9000 -Dsonar.projectName=${JOB_BASE_NAME} -Dsonar.projectVersion=${devTag}"
            }
         )
       }
