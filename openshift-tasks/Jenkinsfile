@@ -144,6 +144,7 @@ podTemplate(
       def activeApp = ""
 
       stage('Blue/Green Production Deployment') {
+        script {
         // Determine which application is active
         openshift.withCluster() {
          openshift.withProject("${prodProject}") {
@@ -181,7 +182,7 @@ podTemplate(
           }
         }   
       }
-
+    }
       stage('Switch over to new Version') {
         echo "Switching Production application to ${destApp}."
         // removed: input "Switch Production?"       
