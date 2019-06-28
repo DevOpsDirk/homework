@@ -90,7 +90,7 @@ podTemplate(
          } 
         }
       }
-// ########################################################################################
+
       // Deploy the built image to the Development Environment.
       stage('Deploy to Dev') {
         echo "Deploying container image to Development Project"
@@ -126,12 +126,24 @@ podTemplate(
       // Copy Image to Nexus container registry
       stage('Copy Image to Nexus container registry') {
         echo "Copy image to Nexus container registry"
+        script {
+          sh "skopeo copy \
+            --src-tls-verify=false \ 
+            --dest-tls-verify=false \
+            --src-creds openshift:\$(oc whoami -t) \
+            --dest-creds admin:admin123 \
+            docker://docker-registry.default.svc.cluster.local:5000/${devProject}/tasks:${devTag} \
+              docker://nexus-registry.${prefix}-nexus.svc.cluster.local:5000/tasks:${devTag}"
 
-        // TBD: Copy image to Nexus container registry
-
-        // TBD: Tag the built image with the production tag.
+        // Tag the built image with the production tag.
+        openshift.withCluster() {
+         openshift.withProject("${prodProject}") {
+          openshift.tag("${devProject}/tasks:${devTag}", "${devProject}/tasks:${prodTag}")
+            }      
+          }
+        }
       }
-
+// ########################################################################################
       // Blue/Green Deployment into Production
       // -------------------------------------
       def destApp   = "tasks-green"
