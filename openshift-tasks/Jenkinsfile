@@ -42,11 +42,11 @@ podTemplate(
       stage('Build war') {
         echo "Building version ${devTag}"
         steps {
-        echo "Building version ${devTag}"
-        // maven command defined at start of pipeline skript
-        // used to execute by sh here with param.
-        sh "${mvnCmd} clean package -DskipTests=true"
-              }      
+          echo "Building.."
+          // maven command defined at start of pipeline skript
+          // used to execute by sh here with param.
+          sh "${mvnCmd} clean package -DskipTests=true"
+          }      
         }
 
 
