@@ -1,5 +1,8 @@
 #!groovy
 def GUID="2c88"
+def devProject = "${GUID}-tasks-dev"
+def prodProject = "${GUID}-tasks-prod"
+
 podTemplate(
   label: "skopeo-pod",
   cloud: "openshift",
@@ -81,10 +84,10 @@ podTemplate(
           openshift.withProject("${devProject}") {
            openshift.selector("bc", "tasks").startBuild("--from-file=./target/openshift-tasks.war", "--wait=true")
 
-        // Tag the image using the devTag.
-         openshift.tag("tasks:latest", "tasks:${devTag}")
-            }
-          } 
+           // Tag the image using the devTag.
+           openshift.tag("tasks:latest", "tasks:${devTag}")
+          }
+         } 
         }
       }
 // ########################################################################################
