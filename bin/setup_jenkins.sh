@@ -1,19 +1,19 @@
 ##!/bin/bash
 # Setup Jenkins Project
-# if [ "$#" -ne 3 ]; then
-#    echo "Usage:"
-#    echo "  $0 GUID REPO CLUSTER"
-#    echo "  Example: $0 wkha https://github.com/redhat-gpte-devopsautomation/advdev_homework_template.git na311.openshift.opentlc.com"
-#    exit 1
-# fi
+if [ "$#" -ne 3 ]; then
+    echo "Usage:"
+    echo "  $0 GUID REPO CLUSTER"
+    echo "  Example: $0 wkha https://github.com/redhat-gpte-devopsautomation/advdev_homework_template.git na311.openshift.opentlc.com"
+    exit 1
+fi
 
-# GUID=$1
-# REPO=$2
-# CLUSTER=$3
+GUID=$1
+REPO=$2
+CLUSTER=$3
 
-export GUID=2c88							                          # noch an Homework GUID anpassen!
-export REPO=https://github.com/DevOpsDirk/homework			# noch an repo anpassen!
-export CLUSTER=na311.openshift.opentlc.com				      # noch an Homework Cluster anpassen!
+# export GUID=2c88							                          # noch an Homework GUID anpassen!
+# export REPO=https://github.com/DevOpsDirk/homework			# noch an repo anpassen!
+# export CLUSTER=na311.openshift.opentlc.com				      # noch an Homework Cluster anpassen!
 
 
 echo "Setting up Jenkins in project ${GUID}-jenkins from Git Repo ${REPO} for Cluster ${CLUSTER}"
@@ -43,13 +43,32 @@ oc -n $GUID-jenkins new-build \
 			-n ${GUID}-jenkins
 
 # Create pipeline build config pointing to the ${REPO} with contextDir `openshift-tasks`
-oc -n $GUID-jenkins new-build ${REPO} \
-   --strategy pipeline \
-   --env GUID=${GUID} \
-   --env CLUSTER=${CLUSTER} \
-   --env NEXUS_RELEASE_URL='http://nexus3.gpte-hw-cicd.svc:8081/repository/releases' \
-   --env REPO=${REPO} \
-   --context-dir openshift-tasks
+# oc -n $GUID-jenkins new-build ${REPO} \
+#   --strategy pipeline \
+#   --env GUID=${GUID} \
+#   --env CLUSTER=${CLUSTER} \
+#   --env NEXUS_RELEASE_URL='http://nexus3.gpte-hw-cicd.svc:8081/repository/releases' \
+#   --env REPO=${REPO} \
+#   --context-dir openshift-tasks
+# why doesn`t the above not work? where is "name: tasks-pipeline" to be set? regards - Dirk
+echo "apiVersion: v1
+items:
+- kind: "BuildConfig"
+  apiVersion: "v1"
+  metadata:
+    name: "tasks-pipeline"
+  spec:
+    source:
+      type: "Git"
+      git:
+        uri: "${REPO}"
+    strategy:
+      type: "JenkinsPipeline"
+      jenkinsPipelineStrategy:
+        jenkinsfilePath: Jenkinsfile
+kind: List
+metadata: []" | oc create -f - -n ${GUID}-jenkins
+
 
 # Make sure that Jenkins is fully up and running before proceeding!
 while : ; do
