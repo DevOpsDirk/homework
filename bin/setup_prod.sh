@@ -39,4 +39,4 @@ oc set probe dc/tasks-green --liveness --get-url=http://:8080/ --initial-delay-s
 oc set env dc/tasks-green VERSION='1.0 (tasks-green)' -n ${GUID}-tasks-prod 
 
 # Expose Blue service as route to make green application active   .
-oc expose svc/tasks-green --name tasks -n ${GUID}-tasks-prod
+oc expose svc/tasks-blue --name tasks -n ${GUID}-tasks-prod
