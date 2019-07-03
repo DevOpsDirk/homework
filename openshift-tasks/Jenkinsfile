@@ -155,7 +155,7 @@ podTemplate(
       // -------------------------------------
       def destApp   = "tasks-green"
       def activeApp = ""
-      echo "############################################ Blue/Green Deployment into Production ##############################
+      echo "############################################ Blue/Green Deployment into Production ##############################"
       
       stage('Blue/Green Production Deployment') {
         script {
