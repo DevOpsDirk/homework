@@ -43,31 +43,33 @@ oc -n $GUID-jenkins new-build \
 			-n ${GUID}-jenkins
 
 # Create pipeline build config pointing to the ${REPO} with contextDir `openshift-tasks`
-# oc -n $GUID-jenkins new-build ${REPO} \
-#   --strategy pipeline \
-#   --env GUID=${GUID} \
-#   --env CLUSTER=${CLUSTER} \
-#   --env NEXUS_RELEASE_URL='http://nexus3.gpte-hw-cicd.svc:8081/repository/releases' \
-#   --env REPO=${REPO} \
-#   --context-dir openshift-tasks
+oc -n $GUID-jenkins new-build ${REPO} \
+   --strategy pipeline \
+   --env GUID=${GUID} \
+   --env CLUSTER=${CLUSTER} \
+   --env NEXUS_RELEASE_URL='http://nexus3.gpte-hw-cicd.svc:8081/repository/releases' \
+   --env REPO=${REPO} \
+   --context-dir openshift-tasks \
+   --name=tasks-pipeline
+
 # why doesn`t the above not work? where is "name: tasks-pipeline" to be set? regards - Dirk
-echo "apiVersion: v1
-items:
-- kind: "BuildConfig"
-  apiVersion: "v1"
-  metadata:
-    name: "tasks-pipeline"
-  spec:
-    source:
-      type: "Git"
-      git:
-        uri: "${REPO}"
-    strategy:
-      type: "JenkinsPipeline"
-      jenkinsPipelineStrategy:
-        jenkinsfilePath: Jenkinsfile
-kind: List
-metadata: []" | oc create -f - -n ${GUID}-jenkins
+#echo "apiVersion: v1
+#items:
+#- kind: "BuildConfig"
+#  apiVersion: "v1"
+#  metadata:
+#    name: "tasks-pipeline"
+#  spec:
+#    source:
+#      type: "Git"
+#      git:
+#        uri: "${REPO}"
+#    strategy:
+#      type: "JenkinsPipeline"
+#      jenkinsPipelineStrategy:
+#        jenkinsfilePath: Jenkinsfile
+#kind: List
+#metadata: []" | oc create -f - -n ${GUID}-jenkins
 
 
 # Make sure that Jenkins is fully up and running before proceeding!
